@@ -1,0 +1,5 @@
+agent_memory.db
+memory.db
+longterm_memory.db
+.env
+data\*
