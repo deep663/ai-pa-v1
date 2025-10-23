@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Web App</title>
+    <style>
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      #ask-form {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      input[type="text"] {
+        flex-grow: 1;
+        padding: 10px;
+      }
+
+      button {
+        padding: 10px 20px;
+        color: white;
+        background-color: rgba(0, 162, 0, 1);
+      }
+
+      #reply {
+        margin-top: 20px;
+      }
+
+      .conversation-bubble {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .inactive {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>EVA - Personal AI Assistant</h1>
+
+      <!-- Add this element below the h1 -->
+      <div id="conversations-container"></div>
+
+      <form id="ask-form">
+        <input
+          type="text"
+          id="user-text"
+          placeholder="Type your question here..."
+        />
+        <button id="submit" type="submit">Ask Eva</button>
+      </form>
+
+      <div id="reply"></div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const askForm = document.getElementById("ask-form");
+        const conversationsContainer = document.createElement("div");
+        conversationsContainer.id = "conversations-container";
+
+        // Add initial chat bubbles to the page
+        for (let i = 1; i <= 5; i++) {
+          let conversationBubble = document.createElement("div");
+          conversationBubble.classList.add("conversation-bubble", "inactive");
+        }
+
+        askForm.parentNode.insertBefore(conversationsContainer, askForm);
+
+        // Store the last five responses in an array
+        let previousResponses = [];
+
+        function displayConversations() {
+          while (conversationsContainer.children.length > 5) {
+            conversationsContainer.removeChild(
+              conversationsContainer.firstChild
+            );
+          }
+
+          for (let i = previousResponses.length - 1; i >= 0; i--) {
+            if (previousResponses[i]) {
+              let conversationBubble = document.createElement("div");
+              conversationBubble.classList.add("conversation-bubble");
+              conversationBubble.innerText = previousResponses[i].reply;
+              conversationsContainer.appendChild(conversationBubble);
+            }
+          }
+
+          // Remove the oldest conversation bubble from the array
+          if (previousResponses.length > 5) {
+            previousResponses.shift();
+          }
+        }
+
+        const sub_button = document.getElementById("ask-form");
+        askForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const userText = document.getElementById("user-text").value;
+          document.getElementById("user-text").value = "";
+          sub_button.disable = true;
+
+          // Start timer as soon as request is sent
+          let requestTimer = setInterval(() => {
+            if (conversationsContainer.children.length === 0) {
+              clearInterval(requestTimer);
+            }
+
+            // Make a POST request to the '/ask' endpoint using Fetch API.
+            fetch("/ask", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ user_text: userText }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                sub_button.disable = false;
+                clearInterval(requestTimer);
+
+                // Store the current response
+                previousResponses.push(data);
+
+                // Display conversations
+                displayConversations();
+
+                // Update the last conversation bubble with the new response
+                let lastConversationBubble =
+                  conversationsContainer.lastElementChild;
+                if (lastConversationBubble.classList.contains("inactive")) {
+                  lastConversationBubble.classList.remove("inactive");
+                }
+                lastConversationBubble.innerText = data.reply;
+
+                // Update the submit button text to show processing time
+                sub_button.textContent = `Processing... (${Math.floor(
+                  (Date.now() - requestTimer.start) / 1000
+                )}s)`;
+              })
+              .catch((error) => {
+                alert("An error occurred while processing your request.");
+                console.error(error);
+              });
+          }, 500); 
+        });
+      });
+    </script>
+  </body>
+</html>
