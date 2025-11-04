@@ -1,23 +1,23 @@
 # agent/agent.py
 from langchain.agents import create_agent
 from agent.model import model
-from pathlib import Path
-from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.store.memory import InMemoryStore
 
 
 # import tools
 from tools.excel_tools import create_excel, add_row, read_excel, update_cell, delete_row
 from tools.project_tools import create_project, list_projects, update_project_status, delete_project
-from tools.system_tools import  make_backup, check_internet, get_current_time, get_today
-from tools.reminders_tools import add_reminder, get_reminder, delete_reminder
-from tools.file_tools import read_any_file, list_files
-from tools.pdf_tools import read_pdf_file
-from tools.web_tools import advanced_web_search
+from tools.system_tools import  make_backup, check_internet
+from tools.reminders_tools import add_reminder, get_reminder, delete_reminder, list_reminders
+from tools.file_tools import read_any_file, list_files, find_files, write_file
+from tools.web_tools import advanced_web_search, find_jobs, search_youtube_video, open_youtube_video, play_youtube_video
+from tools.fs_tools import create_directory, delete_directory, move_directory, find_files_by_name, read_directory
+from tools.sys_tools import run_shell_command, get_system_info, open_application
+from tools.document_tools import attach_document, list_documents, read_document, delete_document
+from tools.sub_agent_tools import delegate_to_web_developer
 
 from agent.memory import  *
 from agent.context import *
-from agent.system_prompt import SYS_PROMPT
+from agent.system_prompt import get_system_prompt
 
 state = CustomAgentState(
     user_id="1",
@@ -27,25 +27,36 @@ state = CustomAgentState(
 tools = [
     create_excel, add_row, read_excel, update_cell, delete_row,
     create_project, list_projects, update_project_status, delete_project,
-    check_internet, make_backup, get_today, get_current_time,
-    add_reminder, get_reminder, delete_reminder,
-    read_any_file, list_files,
-    read_pdf_file,
-    advanced_web_search
+    check_internet, make_backup,
+    add_reminder, get_reminder, delete_reminder, list_reminders,
+    read_any_file, list_files, find_files, write_file,
+    advanced_web_search,
+    find_jobs,
+    search_youtube_video,
+    open_youtube_video,
+    play_youtube_video,
+    create_directory, delete_directory, move_directory, find_files_by_name, read_directory,
+    run_shell_command, get_system_info, open_application,
+    attach_document,
+    list_documents,
+    read_document,
+    delete_document,
+    delegate_to_web_developer
 ]
 
 agent = create_agent(
     model=model,
     tools=tools,
-    system_prompt=SYS_PROMPT,
+    system_prompt=get_system_prompt(),
     checkpointer=sqliteSaver,
     store=sqliteStore,
-    context_schema=CustomAgentState,
-    middleware=[smart_context_trimmer, semantic_context_recall]
+    middleware=[semantic_context_recall]
 )
 
 def ask_agent(user_text: str):
     """Invoke the agent with a single user message, return the final assistant text."""
+    # Update the system prompt with the current time before each invocation
+    agent.system_prompt = get_system_prompt()
     result = agent.invoke(
         {"messages": [{"role": "user", "content": user_text}]},
         {"configurable": {"thread_id": "user_admin"}},

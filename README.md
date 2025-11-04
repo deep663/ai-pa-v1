@@ -1,26 +1,26 @@
-# EVA - AI personal Assistant
+# EVA - A Command-Line AI Personal Assistant
 
 ## Description
 
-This project is an interactive web application that provides an AI personal assistant with long/short memory and various tools. The assistant is powered by the Langchain library and can perform tasks such as creating and managing projects, adding and deleting reminders, reading and writing files, and more.
+This project is a command-line interface (CLI) based AI personal assistant named EVA. It utilizes the Langchain library to provide a conversational interface with long and short-term memory. The assistant is equipped with a variety of tools to interact with the local system, including file system operations, project management, reminders, and web search.
 
 ## Installation
 
 1. Clone the repository: `git clone https://github.com/your-username/your-repo.git`
 2. Install the dependencies: `pip install -r requirements.txt`
-3. Set up the environment variables:
-   - `PROJECT_DATA_PATH`: Path to the directory where the project data will be stored (default: `./data/projects.xlsx`)
-   - `DEFAULT_EXCEL_PATH`: Path to the default Excel file (default: `./data/projects.xlsx`)
-   - `DEFAULT_PDF_PATH`: Path to the default PDF file (default: `./data/sample.pdf`)
-   - `DEFAULT_FILE_PATH`: Path to the default file (default: `./data/sample.txt`)
-   - `DEFAULT_WEB_SEARCH_ENGINE`: The search engine to use for web searches (default: `DuckDuckGoSearchResults`)
-4. Start the server: `python server.py`
 
 ## Usage
 
-1. Open the application in your web browser: `http://localhost:5000`
-2. Use the web interface to interact with the assistant.
-3. Type your query in the input field and press Enter to get a response from the assistant.
+The CLI has two modes of operation:
+
+*   **Interactive Chat:** To start an interactive chat session, run:
+    ```bash
+    python main.py chat
+    ```
+*   **Direct Command:** To send a single message to the agent, run:
+    ```bash
+    python main.py chat "your message here"
+    ```
 
 ## Features
 
@@ -28,20 +28,23 @@ This project is an interactive web application that provides an AI personal assi
 - Create and manage projects
 - Add and delete reminders
 - Read and write files
-- Perform web searches
+- Perform advanced web searches with content summarization
+- Find job listings from Google Jobs
+- Search and play YouTube videos
+- Open applications on your system
 - Read PDF files
 
 ## Technologies Used
 
-- Flask
-- HTML/CSS/JavaScript
+- Python
 - Langchain
-- PyYAML
-- SQLAlchemy
+- Langgraph
 - Pandas
 - OpenPyXL
-- Requests
-- PyPDF2
+- python-dotenv
+- click
+- rich
+- pywhatkit
 
 ## Contributing
 
@@ -49,5 +52,4 @@ Contributions are welcome! If you find any issues or have suggestions for improv
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
-
+This project is licensed under the MIT License.

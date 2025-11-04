@@ -3,3 +3,4 @@ memory.db
 longterm_memory.db
 .env
 data\*
+__pycache__

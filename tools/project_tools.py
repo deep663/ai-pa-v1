@@ -5,7 +5,9 @@ import pandas as pd
 import os
 from typing import Optional
 
-DEFAULT_PATH = os.getenv("PROJECT_DATA_PATH", "./data/projects.xlsx")
+# Use an absolute path for the default projects file to avoid ambiguity
+PROJECT_ROOT = Path(__file__).parent.parent
+DEFAULT_PATH = os.getenv("PROJECT_DATA_PATH", str(PROJECT_ROOT / "data/projects.xlsx"))
 
 def _ensure_projects_file(path: str = DEFAULT_PATH):
     p = Path(path)

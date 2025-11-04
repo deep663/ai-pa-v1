@@ -1,26 +1,42 @@
-# main.py
-import argparse
+import click
 from agent.agent import ask_agent
-import readline  # nicer CLI on unix
 import sys
+from rich.console import Console
 
-def repl():
-    print("EVA CLI — type 'exit' or Ctrl-C to quit.")
-    while True:
-        try:
-            text = input("You: ").strip()
-            if not text:
-                continue
-            if text.lower() in ("exit", "quit"):
-                print("Bye.")
+@click.group()
+def cli():
+    """EVA CLI"""
+    pass
+
+@cli.command()
+@click.argument('text', nargs=-1)
+def chat(text):
+    """Start a chat with EVA."""
+    console = Console()
+    if not text:
+        # Interactive mode
+        console.print("[bold cyan]EVA CLI[/bold cyan] — type 'exit' or Ctrl-C to quit.")
+        while True:
+            try:
+                text_input = console.input("[bold green]You: [/bold green]").strip()
+                if not text_input:
+                    continue
+                if text_input.lower() in ("exit", "quit"):
+                    console.print("[bold cyan]Bye.[/bold cyan]")
+                    break
+                with console.status("[bold yellow]EVA is thinking...[/bold yellow]"):
+                    response = ask_agent(text_input)
+                console.print(f"[bold blue]EVA:[/] {response}")
+            except KeyboardInterrupt:
+                console.print("\n[bold cyan]Interrupted — exiting.[/bold cyan]")
                 break
-            response = ask_agent(text)
-            print("EVA:", response)
-        except KeyboardInterrupt:
-            print("\nInterrupted — exiting.")
-            break
-        except Exception as e:
-            print("Error:", e)
+            except Exception as e:
+                console.print(f"[bold red]Error:[/] {e}")
+    else:
+        # Command-line mode
+        with console.status("[bold yellow]EVA is thinking...[/bold yellow]"):
+            response = ask_agent(" ".join(text))
+        console.print(f"[bold blue]EVA:[/] {response}")
 
 if __name__ == "__main__":
-    repl()
+    cli()

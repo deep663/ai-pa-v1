@@ -3,11 +3,11 @@ from langchain_ollama.chat_models import ChatOllama
 from langchain.agents.middleware import before_model, after_model
 from langgraph.runtime import Runtime
 from langchain.agents import AgentState
-from agent.memory import  AgentStore
+from agent.memory import sqliteStore
 import traceback
 import time
 
-MAX_RUNTIME_MESSAGES = 25
+MAX_RUNTIME_MESSAGES = 5
 MAX_STORED_BATCH = 10
 
 class CustomAgentState(AgentState):
@@ -27,7 +27,7 @@ def smart_context_trimmer(state: "CustomAgentState", runtime: Runtime):
             print("[Memory Archive]: Trimming memory archive...")
             text_dump = "\n".join([m.content for m in old_msgs])
             # Store for retrieval AND semantic search
-            AgentStore.put(
+            sqliteStore.put(
                 ("memory_archive", user_id),
                 f"chat_{int(time.time())}",
                 {
@@ -63,7 +63,7 @@ def semantic_context_recall(state, runtime):
 
     if any(word in last_msg for word in recall_triggers):
         try:
-            results = AgentStore.search(
+            results = sqliteStore.search(
                 ("memory_archive", user_id),
                 query=last_msg,
                 limit=2
@@ -80,5 +80,6 @@ def semantic_context_recall(state, runtime):
 
         except Exception as e:
             print(f"[Semantic Recall Error]: {e}")
+            traceback.print_exc()
 
     return state

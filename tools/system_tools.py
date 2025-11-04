@@ -33,16 +33,3 @@ def make_backup(file_path: str) -> str:
     backup = p.with_suffix(p.suffix + ".bak")
     shutil.copy(p, backup)
     return f"Backup created at {backup.resolve()}"
-
-
-@tool
-def get_current_time() -> str:
-    """Get the current time ."""
-    now = datetime.now()
-    return now.strftime("%H:%M:%S")
-
-@tool
-def get_today() -> str:
-    """Get today's date"""
-    today = datetime.today()
-    return today.strftime("%Y-%m-%d")
