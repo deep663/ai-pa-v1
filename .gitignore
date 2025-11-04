@@ -4,3 +4,8 @@ longterm_memory.db
 .env
 data\*
 __pycache__
+projects\*
+.vscode\*
+logs\*
+*.log
+generated_docs\*
